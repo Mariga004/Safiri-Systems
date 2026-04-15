@@ -325,8 +325,6 @@ safiri-systems/
 - Edge
 - Mobile browsers (iOS Safari, Chrome Mobile)
 
-## License
-This project is developed for academic purposes as a final year project at East African University.
 
 ## Contact
 For questions or support:
