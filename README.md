@@ -264,15 +264,12 @@ safiri-systems/
 ### Day 3 (March 21, 2026)
 - Final testing
 - Documentation
-- Defense preparation
 
 ## Future Enhancements
 - SMS notifications via Africa's Talking API for maintenance alerts
-- Driver mobile app for trip updates
-- Customer booking portal
 - Advanced reporting and analytics
 - Route optimization algorithms
-- Real-time GPS tracking integration
+
 
 ## Known Limitations
 - SMS notifications not implemented (demonstration code only)
@@ -304,7 +301,6 @@ safiri-systems/
 - No need to build auth from scratch
 
 ### Why MySQL?
-- Specified in project proposal
 - Reliable and widely used
 - Good performance for relational data
 - Easy to set up locally
@@ -335,12 +331,10 @@ This project is developed for academic purposes as a final year project at East 
 ## Contact
 For questions or support:
 - Developer: Neema Rimba Mariga
-- Email: neema.mariga@student.eau.ac.ke
-- Supervisor: Mr. Lazarus Wekesa
+- Email: mariganeema@gmail.com
 
 ## Acknowledgments
-- East African University
-- Mr. Lazarus Wekesa (Project Supervisor)
+
 - Clerk (Authentication Service)
 - Vercel (Next.js Framework)
 - Prisma (Database ORM)
