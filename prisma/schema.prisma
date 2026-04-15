@@ -1,0 +1,89 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Bus {
+  id             Int           @id @default(autoincrement())
+  plateNumber    String        @unique
+  model          String
+  capacity       Int
+  status         String        @default("active")
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  trips          Trip[]
+  maintenance    Maintenance[]
+  assignments    BusDriver[]
+}
+
+model Route {
+  id             Int      @id @default(autoincrement())
+  name           String
+  origin         String
+  destination    String
+  distance       Float
+  estimatedTime  String
+  status         String   @default("active")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  trips          Trip[]
+}
+
+model Driver {
+  id             Int         @id @default(autoincrement())
+  firstName      String
+  lastName       String
+  licenseNumber  String      @unique
+  licenseClass   String?
+  psvBadgeNumber String?     
+  phone          String      
+  status         String      @default("active")
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  trips          Trip[]
+  assignments    BusDriver[]
+}
+
+model BusDriver {
+  id         Int      @id @default(autoincrement())
+  busId      Int
+  driverId   Int
+  assignedAt DateTime @default(now())
+  status     String   @default("active")
+  bus        Bus      @relation(fields: [busId], references: [id])
+  driver     Driver   @relation(fields: [driverId], references: [id])
+}
+
+model Trip {
+  id             Int       @id @default(autoincrement())
+  busId          Int
+  routeId        Int
+  driverId       Int
+  departureTime  DateTime
+  arrivalTime    DateTime?
+  status         String    @default("scheduled")
+  notes          String?   @db.Text
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  bus            Bus       @relation(fields: [busId], references: [id])
+  route          Route     @relation(fields: [routeId], references: [id])
+  driver         Driver    @relation(fields: [driverId], references: [id])
+}
+
+model Maintenance {
+  id             Int       @id @default(autoincrement())
+  busId          Int
+  type           String
+  description    String    @db.Text
+  scheduledDate  DateTime
+  completedDate  DateTime?
+  cost           Float?
+  status         String    @default("scheduled")
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  bus            Bus       @relation(fields: [busId], references: [id])
+}
