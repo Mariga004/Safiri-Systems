@@ -3,9 +3,6 @@ A web-based platform for managing internal bus transport operations.
 
 ## Developer
 - Name: Neema Rimba Mariga
-- Student ID: BCSIT/0319/2022
-- University: East African University
-- Supervisor: Mr. Lazarus Wekesa
 
 ## Tech Stack
 - Next.js 14, React 18, Tailwind CSS
