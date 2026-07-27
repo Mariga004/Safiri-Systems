@@ -40,8 +40,7 @@ export default function AboutPage() {
             <h2 className="text-xl font-bold text-gray-900 mt-6 mb-3">Key Features</h2>
             <ul className="list-disc list-inside space-y-2">
               <li>Fleet management (buses and drivers)</li>
-              <li>Route planning and tracking</li>
-              <li>Trip scheduling and monitoring</li>
+              <li>Route planning</li>
               <li>Maintenance record keeping</li>
               <li>Real-time operational dashboard</li>
             </ul>
