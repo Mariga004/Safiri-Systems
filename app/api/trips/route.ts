@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
+import { requireAdmin } from "@/lib/roles";
 
 const prisma = new PrismaClient();
 
@@ -30,6 +31,15 @@ export async function GET() {
 // POST - Create new trip
 export async function POST(request: Request) {
   try {
+    await requireAdmin();
+  } catch {
+    return NextResponse.json(
+      { error: "Only admins can create trips" },
+      { status: 403 }
+    );
+  }
+
+  try {
     const body = await request.json();
     
     // Create the trip with bus, route, and driver relationships
@@ -57,6 +67,15 @@ export async function POST(request: Request) {
 
 // PUT - Update trip
 export async function PUT(request: Request) {
+  try {
+    await requireAdmin();
+  } catch {
+    return NextResponse.json(
+      { error: "Only admins can edit trips" },
+      { status: 403 }
+    );
+  }
+
   try {
     const body = await request.json();
 
@@ -86,6 +105,15 @@ export async function PUT(request: Request) {
 
 // DELETE - Delete trip
 export async function DELETE(request: Request) {
+  try {
+    await requireAdmin();
+  } catch {
+    return NextResponse.json(
+      { error: "Only admins can delete trips" },
+      { status: 403 }
+    );
+  }
+
   try {
     // Get trip ID from URL query parameter (?id=123)
     const { searchParams } = new URL(request.url);

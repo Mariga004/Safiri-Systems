@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 
 interface Route {
   id: number;
@@ -16,6 +17,8 @@ interface Route {
 
 export default function RoutesPage() {
   const router = useRouter();
+  const { user } = useUser();
+  const isAdmin = user?.publicMetadata?.role === "admin";
   const [routes, setRoutes] = useState<Route[]>([]);
   const [filteredRoutes, setFilteredRoutes] = useState<Route[]>([]);
   const [loading, setLoading] = useState(true);
@@ -80,20 +83,19 @@ export default function RoutesPage() {
   return (
     <div className="max-w-6xl mx-auto">
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl md:text-3xl font-bold text-amber-700">Routes</h1>
-          <button
-            onClick={() => router.push("/dashboard/routes/form")}
-            className="bg-amber-700 text-white px-4 md:px-6 py-2 text-sm md:text-base rounded-lg hover:bg-amber-800 font-medium"
-          >
-            + Add New Route
-          </button>
+          {isAdmin && (
+            <button
+              onClick={() => router.push("/dashboard/routes/form")}
+              className="bg-amber-700 text-white px-4 md:px-6 py-2 text-sm md:text-base rounded-lg hover:bg-amber-800 font-medium"
+            >
+              + Add New Route
+            </button>
+          )}
         </div>
 
-        {/* Search and Entries */}
         <div className="flex flex-col md:flex-row justify-between gap-4 mb-4">
-          {/* Show entries dropdown */}
           <div className="flex items-center gap-2">
             <label className="text-sm font-medium text-gray-900">Show</label>
             <select
@@ -109,7 +111,6 @@ export default function RoutesPage() {
             <label className="text-sm font-medium text-gray-900">entries</label>
           </div>
 
-          {/* Search */}
           <div className="flex items-center gap-2">
             <label className="text-sm font-medium text-gray-900">Search:</label>
             <input
@@ -122,10 +123,8 @@ export default function RoutesPage() {
           </div>
         </div>
 
-        {/* Table */}
         <div className="overflow-x-auto">
           <table className="w-full text-xs md:text-sm">
-            {/* DEEP AMBER HEADERS */}
             <thead className="bg-amber-700 border-b border-amber-800">
               <tr>
                 <th className="px-2 md:px-6 py-3 md:py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
@@ -201,48 +200,52 @@ export default function RoutesPage() {
                       {formatDate(route.createdAt)}
                     </td>
                     <td className="px-2 md:px-6 py-2 md:py-4 relative">
-                      {/* Actions Button */}
-                      <button
-                        onClick={() =>
-                          setOpenDropdown(openDropdown === route.id ? null : route.id)
-                        }
-                        className="bg-amber-700 text-white px-4 py-2 rounded-lg hover:bg-amber-800 font-medium flex items-center gap-1"
-                      >
-                        Actions
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M19 9l-7 7-7-7"
-                          />
-                        </svg>
-                      </button>
+                      {isAdmin ? (
+                        <>
+                          <button
+                            onClick={() =>
+                              setOpenDropdown(openDropdown === route.id ? null : route.id)
+                            }
+                            className="bg-amber-700 text-white px-4 py-2 rounded-lg hover:bg-amber-800 font-medium flex items-center gap-1"
+                          >
+                            Actions
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M19 9l-7 7-7-7"
+                              />
+                            </svg>
+                          </button>
 
-                      {/* Dropdown Menu */}
-                      {openDropdown === route.id && (
-                        <div className="absolute right-0 top-full mt-1 w-32 bg-white rounded-md shadow-lg z-20 border border-gray-200">
-                          <button
-                            onClick={() => {
-                              router.push(`/dashboard/routes/form?id=${route.id}`);
-                              setOpenDropdown(null);
-                            }}
-                            className="block w-full text-left px-4 py-2 text-sm text-amber-700 hover:bg-amber-50 font-medium"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleDelete(route.id)}
-                            className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 font-medium"
-                          >
-                            Delete
-                          </button>
-                        </div>
+                          {openDropdown === route.id && (
+                            <div className="absolute right-0 top-full mt-1 w-32 bg-white rounded-md shadow-lg z-20 border border-gray-200">
+                              <button
+                                onClick={() => {
+                                  router.push(`/dashboard/routes/form?id=${route.id}`);
+                                  setOpenDropdown(null);
+                                }}
+                                className="block w-full text-left px-4 py-2 text-sm text-amber-700 hover:bg-amber-50 font-medium"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                onClick={() => handleDelete(route.id)}
+                                className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 font-medium"
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <span className="text-gray-400 text-xs">View only</span>
                       )}
                     </td>
                   </tr>
@@ -252,7 +255,6 @@ export default function RoutesPage() {
           </table>
         </div>
 
-        {/* Results info */}
         <div className="mt-4 text-sm font-medium text-gray-900">
           Showing {displayedRoutes.length} of {filteredRoutes.length} routes
         </div>

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
+import { requireAdmin } from "@/lib/roles";
 
 const prisma = new PrismaClient();
 
@@ -20,6 +21,15 @@ export async function GET() {
 
 // POST - Create new route
 export async function POST(request: Request) {
+  try {
+    await requireAdmin();
+  } catch {
+    return NextResponse.json(
+      { error: "Only admins can add routes" },
+      { status: 403 }
+    );
+  }
+
   try {
     const body = await request.json();
     const route = await prisma.route.create({
@@ -44,6 +54,15 @@ export async function POST(request: Request) {
 // PUT - Update route
 export async function PUT(request: Request) {
   try {
+    await requireAdmin();
+  } catch {
+    return NextResponse.json(
+      { error: "Only admins can edit routes" },
+      { status: 403 }
+    );
+  }
+
+  try {
     const body = await request.json();
     const route = await prisma.route.update({
       where: { id: body.id },
@@ -67,6 +86,15 @@ export async function PUT(request: Request) {
 
 // DELETE - Delete route
 export async function DELETE(request: Request) {
+  try {
+    await requireAdmin();
+  } catch {
+    return NextResponse.json(
+      { error: "Only admins can delete routes" },
+      { status: 403 }
+    );
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");

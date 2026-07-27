@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
+import { requireAdmin } from "@/lib/roles";
 
 const prisma = new PrismaClient();
 
@@ -27,6 +28,15 @@ export async function GET() {
 
 // POST - Create new maintenance record
 export async function POST(request: Request) {
+  try {
+    await requireAdmin();
+  } catch {
+    return NextResponse.json(
+      { error: "Only admins can add maintenance records" },
+      { status: 403 }
+    );
+  }
+
   try {
     const body = await request.json();
     
@@ -59,6 +69,15 @@ export async function POST(request: Request) {
 // PUT - Update maintenance record
 export async function PUT(request: Request) {
   try {
+    await requireAdmin();
+  } catch {
+    return NextResponse.json(
+      { error: "Only admins can edit maintenance records" },
+      { status: 403 }
+    );
+  }
+
+  try {
     const body = await request.json();
 
     // Update the maintenance record
@@ -90,6 +109,15 @@ export async function PUT(request: Request) {
 
 // DELETE - Delete maintenance record
 export async function DELETE(request: Request) {
+  try {
+    await requireAdmin();
+  } catch {
+    return NextResponse.json(
+      { error: "Only admins can delete maintenance records" },
+      { status: 403 }
+    );
+  }
+
   try {
     // Get maintenance ID from URL query parameter (?id=123)
     const { searchParams } = new URL(request.url);

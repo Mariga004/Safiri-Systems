@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 
 interface Bus {
   id: number;
@@ -14,6 +15,8 @@ interface Bus {
 
 export default function BusesPage() {
   const router = useRouter();
+  const { user } = useUser();
+  const isAdmin = user?.publicMetadata?.role === "admin";
   const [buses, setBuses] = useState<Bus[]>([]);
   const [filteredBuses, setFilteredBuses] = useState<Bus[]>([]);
   const [loading, setLoading] = useState(true);
@@ -82,12 +85,14 @@ export default function BusesPage() {
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl md:text-3xl font-bold text-amber-700">Buses</h1>
-          <button
-            onClick={() => router.push("/dashboard/buses/form")}
-            className="bg-amber-700 text-white px-4 md:px-6 py-2 text-sm md:text-base rounded-lg hover:bg-amber-800 font-medium"
-          >
-            + Add New Bus
-          </button>
+          {isAdmin && (
+            <button
+              onClick={() => router.push("/dashboard/buses/form")}
+              className="bg-amber-700 text-white px-4 md:px-6 py-2 text-sm md:text-base rounded-lg hover:bg-amber-800 font-medium"
+            >
+              + Add New Bus
+            </button>
+          )}
         </div>
 
         {/* Search and Entries */}
@@ -190,48 +195,54 @@ export default function BusesPage() {
                       {formatDate(bus.createdAt)}
                     </td>
                     <td className="px-2 md:px-6 py-2 md:py-4 relative">
-                      {/* Actions Button - DEEP AMBER BOX */}
-                      <button
-                        onClick={() =>
-                          setOpenDropdown(openDropdown === bus.id ? null : bus.id)
-                        }
-                        className="bg-amber-700 text-white px-4 py-2 rounded-lg hover:bg-amber-800 font-medium flex items-center gap-1"
-                      >
-                        Actions
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M19 9l-7 7-7-7"
-                          />
-                        </svg>
-                      </button>
+                      {isAdmin ? (
+                        <>
+                          {/* Actions Button - DEEP AMBER BOX */}
+                          <button
+                            onClick={() =>
+                              setOpenDropdown(openDropdown === bus.id ? null : bus.id)
+                            }
+                            className="bg-amber-700 text-white px-4 py-2 rounded-lg hover:bg-amber-800 font-medium flex items-center gap-1"
+                          >
+                            Actions
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M19 9l-7 7-7-7"
+                              />
+                            </svg>
+                          </button>
 
-                      {/* Dropdown Menu - FIXED POSITION */}
-                      {openDropdown === bus.id && (
-                        <div className="absolute right-0 top-full mt-1 w-32 bg-white rounded-md shadow-lg z-20 border border-gray-200">
-                          <button
-                            onClick={() => {
-                              router.push(`/dashboard/buses/form?id=${bus.id}`);
-                              setOpenDropdown(null);
-                            }}
-                            className="block w-full text-left px-4 py-2 text-sm text-amber-700 hover:bg-amber-50 font-medium"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleDelete(bus.id)}
-                            className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 font-medium"
-                          >
-                            Delete
-                          </button>
-                        </div>
+                          {/* Dropdown Menu - FIXED POSITION */}
+                          {openDropdown === bus.id && (
+                            <div className="absolute right-0 top-full mt-1 w-32 bg-white rounded-md shadow-lg z-20 border border-gray-200">
+                              <button
+                                onClick={() => {
+                                  router.push(`/dashboard/buses/form?id=${bus.id}`);
+                                  setOpenDropdown(null);
+                                }}
+                                className="block w-full text-left px-4 py-2 text-sm text-amber-700 hover:bg-amber-50 font-medium"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                onClick={() => handleDelete(bus.id)}
+                                className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 font-medium"
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <span className="text-gray-400 text-xs">View only</span>
                       )}
                     </td>
                   </tr>

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
+import { requireAdmin } from "@/lib/roles";
 
 const prisma = new PrismaClient();
 
@@ -31,6 +32,15 @@ export async function GET() {
 
 // POST - Create new driver (with optional bus assignment)
 export async function POST(request: Request) {
+  try {
+    await requireAdmin();
+  } catch {
+    return NextResponse.json(
+      { error: "Only admins can add drivers" },
+      { status: 403 }
+    );
+  }
+
   try {
     const body = await request.json();
     
@@ -72,6 +82,15 @@ export async function POST(request: Request) {
 
 // PUT - Update driver (and bus assignment)
 export async function PUT(request: Request) {
+  try {
+    await requireAdmin();
+  } catch {
+    return NextResponse.json(
+      { error: "Only admins can edit drivers" },
+      { status: 403 }
+    );
+  }
+
   try {
     const body = await request.json();
 
@@ -137,6 +156,15 @@ export async function PUT(request: Request) {
 
 // DELETE - Delete driver
 export async function DELETE(request: Request) {
+  try {
+    await requireAdmin();
+  } catch {
+    return NextResponse.json(
+      { error: "Only admins can delete drivers" },
+      { status: 403 }
+    );
+  }
+
   try {
     // Get driver ID from URL query parameter (?id=123)
     const { searchParams } = new URL(request.url);
