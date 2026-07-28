@@ -38,12 +38,13 @@ export default function DriverFormPage() {
     }
   }, [isEditing]);
 
-  // Fetch all buses for the dropdown
+  // Fetch all buses for the dropdown - only show ACTIVE buses
   const fetchBuses = async () => {
     try {
       const response = await fetch("/api/buses");
       const data = await response.json();
-      setBuses(data);  // Store buses in state
+      const activeBuses = data.filter((bus: any) => bus.status === "active");
+      setBuses(activeBuses);  // Store only active buses in state
     } catch (error) {
       console.error("Error fetching buses:", error);
     }
@@ -243,7 +244,7 @@ export default function DriverFormPage() {
             />
           </div>
 
-          {/* Assigned Bus Dropdown - THIS IS THE BUS ASSIGNMENT FEATURE! */}
+          {/* Assigned Bus Dropdown - only shows ACTIVE buses */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Assigned Bus (Optional)
@@ -258,13 +259,16 @@ export default function DriverFormPage() {
               {/* First option - No bus assigned */}
               <option value="">No Bus Assigned</option>
               
-              {/* Loop through all buses and create an option for each */}
+              {/* Loop through active buses and create an option for each */}
               {buses.map((bus) => (
                 <option key={bus.id} value={bus.id}>
                   {bus.plateNumber} - {bus.model}
                 </option>
               ))}
             </select>
+            <p className="text-xs text-gray-500 mt-1">
+              Only active buses are shown
+            </p>
           </div>
 
           {/* Status Dropdown */}

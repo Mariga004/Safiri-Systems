@@ -42,12 +42,13 @@ export default function TripFormPage() {
     }
   }, [isEditing]);
 
-  // Fetch all buses for the dropdown
+  // Fetch all buses for the dropdown - only show ACTIVE buses
   const fetchBuses = async () => {
     try {
       const response = await fetch("/api/buses");
       const data = await response.json();
-      setBuses(data);  // Store buses in state
+      const activeBuses = data.filter((bus: any) => bus.status === "active");
+      setBuses(activeBuses);  // Store only active buses in state
     } catch (error) {
       console.error("Error fetching buses:", error);
     }
@@ -64,12 +65,13 @@ export default function TripFormPage() {
     }
   };
 
-  // Fetch all drivers for the dropdown
+  // Fetch all drivers for the dropdown - only show ACTIVE drivers
   const fetchDrivers = async () => {
     try {
       const response = await fetch("/api/drivers");
       const data = await response.json();
-      setDrivers(data);  // Store drivers in state
+      const activeDrivers = data.filter((driver: any) => driver.status === "active");
+      setDrivers(activeDrivers);  // Store only active drivers in state
     } catch (error) {
       console.error("Error fetching drivers:", error);
     }
@@ -134,10 +136,16 @@ export default function TripFormPage() {
         body: JSON.stringify(body),
       });
 
-      // If successful, go back to trips list
-      if (response.ok) {
-        router.push("/dashboard/trips");
+      // Handle errors first, so blocked assignments show a message
+      if (!response.ok) {
+        const data = await response.json();
+        alert(data.error);
+        setLoading(false);
+        return;
       }
+
+      // If successful, go back to trips list
+      router.push("/dashboard/trips");
     } catch (error) {
       console.error("Error saving trip:", error);
     } finally {
@@ -178,6 +186,9 @@ export default function TripFormPage() {
                 </option>
               ))}
             </select>
+            <p className="text-xs text-gray-500 mt-1">
+              Only active buses are shown
+            </p>
           </div>
 
           {/* Route Dropdown */}
@@ -222,6 +233,9 @@ export default function TripFormPage() {
                 </option>
               ))}
             </select>
+            <p className="text-xs text-gray-500 mt-1">
+              Only active drivers are shown
+            </p>
           </div>
 
           {/* Departure and Arrival Time - Side by side on desktop */}

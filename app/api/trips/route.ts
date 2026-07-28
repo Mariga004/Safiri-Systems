@@ -7,15 +7,13 @@ const prisma = new PrismaClient();
 // GET - Fetch all trips with bus, route, and driver details
 export async function GET() {
   try {
-    // Fetch all trips from database
-    // Include related bus, route, and driver information
     const trips = await prisma.trip.findMany({
       include: {
-        bus: true,      // Include bus details (plateNumber, model, etc.)
-        route: true,    // Include route details (name, origin, destination, etc.)
-        driver: true,   // Include driver details (firstName, lastName, etc.)
+        bus: true,
+        route: true,
+        driver: true,
       },
-      orderBy: { departureTime: "desc" },  // Newest trips first
+      orderBy: { departureTime: "desc" },
     });
     
     return NextResponse.json(trips);
@@ -41,17 +39,39 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    
+
+    // Validate the bus is active before assigning it to a trip
+    const bus = await prisma.bus.findUnique({
+      where: { id: parseInt(body.busId) },
+    });
+    if (!bus || bus.status !== "active") {
+      return NextResponse.json(
+        { error: "Selected bus is not active and cannot be assigned to a trip" },
+        { status: 400 }
+      );
+    }
+
+    // Validate the driver is active before assigning them to a trip
+    const driver = await prisma.driver.findUnique({
+      where: { id: parseInt(body.driverId) },
+    });
+    if (!driver || driver.status !== "active") {
+      return NextResponse.json(
+        { error: "Selected driver is not active and cannot be assigned to a trip" },
+        { status: 400 }
+      );
+    }
+
     // Create the trip with bus, route, and driver relationships
     const trip = await prisma.trip.create({
       data: {
-        busId: parseInt(body.busId),              // Convert to number
-        routeId: parseInt(body.routeId),          // Convert to number
-        driverId: parseInt(body.driverId),        // Convert to number
-        departureTime: new Date(body.departureTime),  // Convert to Date
-        arrivalTime: new Date(body.arrivalTime),      // Convert to Date
+        busId: parseInt(body.busId),
+        routeId: parseInt(body.routeId),
+        driverId: parseInt(body.driverId),
+        departureTime: new Date(body.departureTime),
+        arrivalTime: new Date(body.arrivalTime),
         status: body.status,
-        notes: body.notes || "",  // Optional field, default to empty string
+        notes: body.notes || "",
       },
     });
 
@@ -78,6 +98,28 @@ export async function PUT(request: Request) {
 
   try {
     const body = await request.json();
+
+    // Validate the bus is active before assigning it to a trip
+    const bus = await prisma.bus.findUnique({
+      where: { id: parseInt(body.busId) },
+    });
+    if (!bus || bus.status !== "active") {
+      return NextResponse.json(
+        { error: "Selected bus is not active and cannot be assigned to a trip" },
+        { status: 400 }
+      );
+    }
+
+    // Validate the driver is active before assigning them to a trip
+    const driver = await prisma.driver.findUnique({
+      where: { id: parseInt(body.driverId) },
+    });
+    if (!driver || driver.status !== "active") {
+      return NextResponse.json(
+        { error: "Selected driver is not active and cannot be assigned to a trip" },
+        { status: 400 }
+      );
+    }
 
     // Update the trip information
     const trip = await prisma.trip.update({
@@ -115,11 +157,9 @@ export async function DELETE(request: Request) {
   }
 
   try {
-    // Get trip ID from URL query parameter (?id=123)
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
 
-    // Validate that ID was provided
     if (!id) {
       return NextResponse.json(
         { error: "Trip ID is required" },
@@ -127,7 +167,6 @@ export async function DELETE(request: Request) {
       );
     }
 
-    // Delete the trip
     await prisma.trip.delete({
       where: { id: parseInt(id) },
     });

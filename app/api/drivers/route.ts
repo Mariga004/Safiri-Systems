@@ -43,6 +43,19 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
+
+    // If a bus was selected, validate it's active before doing anything else
+    if (body.assignedBusId && body.assignedBusId !== "") {
+      const bus = await prisma.bus.findUnique({
+        where: { id: parseInt(body.assignedBusId) },
+      });
+      if (!bus || bus.status !== "active") {
+        return NextResponse.json(
+          { error: "Selected bus is not active and cannot be assigned to a driver" },
+          { status: 400 }
+        );
+      }
+    }
     
     // Step 1: Create the driver in the Driver table
     const driver = await prisma.driver.create({
@@ -93,6 +106,19 @@ export async function PUT(request: Request) {
 
   try {
     const body = await request.json();
+
+    // If a bus was selected, validate it's active before doing anything else
+    if (body.assignedBusId && body.assignedBusId !== "") {
+      const bus = await prisma.bus.findUnique({
+        where: { id: parseInt(body.assignedBusId) },
+      });
+      if (!bus || bus.status !== "active") {
+        return NextResponse.json(
+          { error: "Selected bus is not active and cannot be assigned to a driver" },
+          { status: 400 }
+        );
+      }
+    }
 
     // Step 1: Update the driver's basic information in Driver table
     const driver = await prisma.driver.update({
